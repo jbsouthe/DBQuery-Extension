@@ -1,0 +1,16 @@
+[
+  {
+    "connectionString": "",
+    "dbUser": "",
+    "dbPassword": "",
+    "analytics" : {
+      "url": "",
+      "accountName": "",
+      "APIKey": ""
+    },
+    "queries": [
+      { "sqlQuery": "", "analyticsTable": "", "runEveryMinutes": 5 },
+      { "sqlQuery": "", "analyticsTable": "", "runEveryMinutes": 5 }
+    ]
+  }
+]
