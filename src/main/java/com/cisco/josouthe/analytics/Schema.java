@@ -19,6 +19,8 @@ public class Schema extends ErrorReply {
         this.schema = new HashMap<>();
     }
 
+    public Map<String,String> getMap() { return this.schema; }
+
     public void addField( String fieldName, Object type ) throws AnalyticsSchemaException {
         if( fieldName == null || type == null ) throw new AnalyticsSchemaException("Field name and Type must not be null!");
         if( this.schema.containsKey(fieldName) ) throw new AnalyticsSchemaException(String.format("Field '%s' alreadys exists in this schema",fieldName));
@@ -75,5 +77,15 @@ public class Schema extends ErrorReply {
         }
         json.append("} ");
         return json.toString();
+    }
+
+    public boolean equals( Schema schema ) {
+        if( schema == null ) return false;
+        if( !schema.exists() ) return false;
+        Map<String,String> otherMap = schema.getMap();
+        if( otherMap == null || otherMap.size() != this.schema.size() ) return false;
+        for( String key : this.schema.keySet() )
+            if( !this.schema.get(key).equals(otherMap.get(key)) ) return false;
+        return true; //if the other schema is the same size and all the keys in this schema match that schema, they are equal
     }
 }

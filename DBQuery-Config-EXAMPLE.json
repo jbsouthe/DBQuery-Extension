@@ -3,6 +3,7 @@
     "connectionString": "",
     "dbUser": "",
     "dbPassword": "",
+    "dbDriverName": "",
     "analytics" : {
       "url": "",
       "accountName": "",

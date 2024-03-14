@@ -1,5 +1,6 @@
 package com.cisco.josouthe.analytics;
 
+import com.cisco.josouthe.configuration.AnalyticsEndpoint;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import okhttp3.*;
@@ -13,20 +14,24 @@ import java.util.List;
 import java.util.Map;
 
 
-public class Analytics {
+public class AnalyticsService {
     private static final Logger logger = LogManager.getFormatterLogger();
 
     public String baseUrl, APIAccountName, APIKey;
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private OkHttpClient okHttpClient;
 
-    public Analytics(String urlString, String APIAccountName, String APIKey) {
+    public AnalyticsService(String urlString, String APIAccountName, String APIKey) {
         if( !urlString.endsWith("/") ) urlString+="/";
         this.baseUrl = urlString;
         this.APIAccountName = APIAccountName;
         this.APIKey = APIKey;
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         okHttpClient = builder.build();
+    }
+
+    public AnalyticsService(AnalyticsEndpoint analytics) {
+        this(analytics.url, analytics.accountName, analytics.APIKey);
     }
 
     protected String getRequest( String urlRequest ) throws IOException {
@@ -107,14 +112,9 @@ public class Analytics {
     }
 
     @SuppressWarnings("unchecked")
-    public void insertAllData( Object dataListParameter ) throws AnalyticsSchemaException, IOException {
-        List<SchemaData> dataList = (List<SchemaData>) dataListParameter;
-        ArrayList<Map<String, String>> data = new ArrayList<>();
-        Schema schema = null;
-        for (SchemaData schemaData : dataList) {
-            if (schema == null) schema = schemaData.getSchemaDefinition();
-            data.add(schemaData.getSchemaData());
-        }
+    public void insertAllData( SchemaData schemaData ) throws AnalyticsSchemaException, IOException {
+        List<Map<String, String>> data = schemaData.getSchemaData();
+        Schema schema = schemaData.getSchemaDefinition();
         Schema checkSchema = getSchema(schema.name);
         if (checkSchema == null || !checkSchema.exists()) createSchema(schema);
         insertSchema(schema, data);
