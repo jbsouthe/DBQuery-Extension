@@ -8,10 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class AnalyticsService {
@@ -118,5 +115,30 @@ public class AnalyticsService {
         Schema checkSchema = getSchema(schema.name);
         if (checkSchema == null || !checkSchema.exists()) createSchema(schema);
         insertSchema(schema, data);
+    }
+
+    public void confirmSchema(Schema schemaDefinition) throws IOException, AnalyticsSchemaException {
+        Schema checkSchema = getSchema(schemaDefinition.name);
+        if( checkSchema == null || !checkSchema.exists() ) {
+            createSchema(schemaDefinition);
+        }
+        if( !checkSchema.equals(schemaDefinition) ) {
+            modifySchema(schemaDefinition.name, checkSchema.differences(schemaDefinition));
+        }
+    }
+
+    private void modifySchema(String name, Map<String, String> differences) throws AnalyticsSchemaException, IOException {
+        if( name == null || differences == null || differences.isEmpty() ) throw new AnalyticsSchemaException("Strange call, no differences to modify the schema");
+        StringBuilder json = new StringBuilder("[ { \"add\": {");
+        Iterator<String> it = differences.keySet().iterator();
+        while(it.hasNext()) {
+            String key = it.next();
+            json.append( String.format("\"%s\": \"%s\"", key, differences.get(key)) );
+            if( it.hasNext() ) json.append(", ");
+        }
+        json.append(" } } ]");
+        logger.trace("Modify Schema JSON: %s", json);
+        System.out.println(String.format("JSON: '%s'",json));
+        executeRequest("PATCH", String.format("events/schema/%s",name), json.toString());
     }
 }

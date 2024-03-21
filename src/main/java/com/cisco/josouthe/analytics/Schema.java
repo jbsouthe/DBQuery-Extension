@@ -88,4 +88,13 @@ public class Schema extends ErrorReply {
             if( !this.schema.get(key).equals(otherMap.get(key)) ) return false;
         return true; //if the other schema is the same size and all the keys in this schema match that schema, they are equal
     }
+
+    public Map<String,String> differences(Schema schemaDefinition) {
+        Map<String,String> missingColumns = new HashMap<>();
+        if( schema == null || schema.isEmpty() ) return schemaDefinition.schema;
+        missingColumns.putAll(schemaDefinition.schema);
+        for( String key : schema.keySet() )
+            missingColumns.remove(key);
+        return missingColumns;
+    }
 }

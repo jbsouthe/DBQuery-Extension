@@ -99,10 +99,10 @@ public class DBQueryManagedMonitor extends AManagedMonitor {
                     Statement statement = dbConnection.createStatement();
                     ResultSet resultSet = statement.executeQuery(query.sqlQuery);
                     QueryResponse queryResponse = new QueryResponse(resultSet, query.analyticsTable);
-                } catch (SQLException e) {
-                    logger.warn(String.format("SQLException executing query '%s', message: %s", query.sqlQuery, e));
-                } catch (AnalyticsSchemaException e) {
-                    logger.warn(String.format("Analytics Schema Exception executing query '%s', message: %s", query.sqlQuery, e));
+                    analyticsAPI.confirmSchema(queryResponse.getSchemaDefinition());
+                    analyticsAPI.insertSchema(queryResponse.getSchemaDefinition(), queryResponse.getSchemaData());
+                } catch (Exception e) {
+                    logger.warn(String.format("Exception executing query '%s', message: %s", query.sqlQuery, e));
                 }
             }
             try {
